@@ -5,6 +5,9 @@ __pycache__/
 # C extensions
 *.so
 
+# Abhängigkeiten
+node_modules/
+
 # Distribution / packaging
 .Python
 env/
