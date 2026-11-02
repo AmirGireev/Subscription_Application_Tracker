@@ -1,66 +1,110 @@
-import { useState, type FormEvent } from 'react';
-import { CATEGORIES, type BillingCycle, type Subscription, type SubscriptionInput } from '../types';
+import { useState, useEffect } from 'react';
+import type { Subscription, SubscriptionInput } from '../types';
 
 interface Props {
   initial: Subscription | null;
-  onSave: (data: SubscriptionInput) => Promise<void>;
+  onSave: (data: SubscriptionInput, alreadyPaid: boolean) => Promise<void>;
   onCancelEdit: () => void;
 }
 
 export default function SubscriptionForm({ initial, onSave, onCancelEdit }: Props) {
-  const [name, setName] = useState(initial?.name ?? '');
-  const [price, setPrice] = useState(initial ? (initial.cost_cents / 100).toFixed(2) : '');
-  const [cycle, setCycle] = useState<BillingCycle>(initial?.billing_cycle ?? 'monthly');
-  const [category, setCategory] = useState(initial?.category ?? 'other');
-  const [date, setDate] = useState(initial?.next_billing_date ?? '');
-  const [notes, setNotes] = useState(initial?.notes ?? '');
-  const [error, setError] = useState('');
+  const [name, setName] = useState('');
+  const [cost, setCost] = useState('');
+  const [cycle, setCycle] = useState<'monthly'|'yearly'>('monthly');
+  const [category, setCategory] = useState('other');
+  const [nextDate, setNextDate] = useState('');
+  const [alreadyPaid, setAlreadyPaid] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    setError('');
-    const euros = parseFloat(price.replace(',', '.'));
-    if (!name.trim() || Number.isNaN(euros) || euros < 0) {
-      setError('Enter a name and a valid price');
-      return;
+  useEffect(() => {
+    if (initial) {
+      setName(initial.name);
+      setCost((initial.cost_cents / 100).toString());
+      setCycle(initial.billing_cycle);
+      setCategory(initial.category);
+      setNextDate(initial.next_billing_date || '');
     }
+  }, [initial]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
     try {
       await onSave({
-        name: name.trim(),
-        cost_cents: Math.round(euros * 100), // euros -> integer cents
+        name,
+        cost_cents: Math.round(parseFloat(cost) * 100),
         billing_cycle: cycle,
         category,
-        status: initial?.status ?? 'active',
-        next_billing_date: date || null,
-        notes: notes.trim() || null,
-      });
+        next_billing_date: nextDate || null,
+        status: initial?.status || 'active',
+        notes: initial?.notes || null
+      }, alreadyPaid);
+      
       if (!initial) {
-        setName('');
-        setPrice('');
-        setDate('');
-        setNotes('');
+        setName(''); setCost(''); setNextDate(''); setCategory('other'); setAlreadyPaid(true);
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   return (
-    <form className='sub-form' onSubmit={handleSubmit}>
-      <input placeholder='Name (e.g. Netflix)' value={name} onChange={(e) => setName(e.target.value)} />
-      <input placeholder='Price in EUR' inputMode='decimal' value={price} onChange={(e) => setPrice(e.target.value)} />
-      <select value={cycle} onChange={(e) => setCycle(e.target.value as BillingCycle)}>
-        <option value='monthly'>Monthly</option>
-        <option value='yearly'>Yearly</option>
+    <form onSubmit={handleSubmit} className="sub-form">
+      <div>
+        <input 
+          list="popular-subs" 
+          placeholder="Name (e.g. Netflix)" 
+          value={name} 
+          onChange={e=>setName(e.target.value)} 
+          required 
+          style={{ width: '100%', boxSizing: 'border-box' }}
+        />
+        <datalist id="popular-subs">
+          <option value="Netflix" />
+          <option value="Spotify" />
+          <option value="Amazon Prime" />
+          <option value="YouTube Premium" />
+          <option value="Disney+" />
+          <option value="Apple Music" />
+          <option value="iCloud" />
+          <option value="ChatGPT Plus" />
+          <option value="DAZN" />
+          <option value="Adobe Creative Cloud" />
+          <option value="Microsoft 365" />
+          <option value="PlayStation Plus" />
+          <option value="Xbox Game Pass" />
+        </datalist>
+      </div>
+      
+      <input type="number" step="0.01" placeholder="Cost (EUR)" value={cost} onChange={e=>setCost(e.target.value)} required />
+      
+      <select value={cycle} onChange={e=>setCycle(e.target.value as any)}>
+        <option value="monthly">Monthly</option>
+        <option value="yearly">Yearly</option>
       </select>
-      <select value={category} onChange={(e) => setCategory(e.target.value)}>
-        {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+      
+      <select value={category} onChange={e=>setCategory(e.target.value)}>
+        <option value="video">video</option>
+        <option value="music">music</option>
+        <option value="dev">dev</option>
+        <option value="productivity">productivity</option>
+        <option value="cloud">cloud</option>
+        <option value="other">other</option>
       </select>
-      <input type='date' value={date} onChange={(e) => setDate(e.target.value)} />
-      <input placeholder='Notes (optional)' value={notes} onChange={(e) => setNotes(e.target.value)} />
-      <button type='submit'>{initial ? 'Save changes' : 'Add'}</button>
-      {initial && <button type='button' onClick={onCancelEdit}>Discard</button>}
-      {error && <p className='error' role='alert'>{error}</p>}
+      
+      <input type="date" value={nextDate} onChange={e=>setNextDate(e.target.value)} />
+      
+      {!initial && (
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', gridColumn: '1 / -1', cursor: 'pointer' }}>
+          <input type="checkbox"  onChange={e => setAlreadyPaid(e.target.checked)} />
+          Already paid for this cycle (don't log immediate payment)
+        </label>
+      )}
+
+      <div style={{ display: 'flex', gap: '1rem', gridColumn: '1 / -1' }}>
+        <button type="submit" disabled={loading}>Save</button>
+        {initial && <button type="button" onClick={onCancelEdit} style={{ background: '#6b7280' }}>Cancel</button>}
+      </div>
     </form>
   );
 }
