@@ -1,7 +1,5 @@
 # Subscription & Monthly Burn Tracker
 
-(https://github.com/AmirGireev/subscription-tracker/actions/workflows/ci.yml/badge.svg)
-
 Track your software subscriptions and see your monthly spending at a glance.
 
 **Live demo:** https://subscription-tracker-r2u5.onrender.com/
