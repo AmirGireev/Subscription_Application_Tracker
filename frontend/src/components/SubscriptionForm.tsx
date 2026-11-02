@@ -13,7 +13,7 @@ export default function SubscriptionForm({ initial, onSave, onCancelEdit }: Prop
   const [cycle, setCycle] = useState<'monthly'|'yearly'>('monthly');
   const [category, setCategory] = useState('other');
   const [nextDate, setNextDate] = useState('');
-  const [alreadyPaid, setAlreadyPaid] = useState(true);
+  const [alreadyPaid, setAlreadyPaid] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -103,8 +103,8 @@ export default function SubscriptionForm({ initial, onSave, onCancelEdit }: Prop
       
       {!initial && (
         <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', gridColumn: '1 / -1', cursor: 'pointer' }}>
-          <input type="checkbox"  onChange={e => setAlreadyPaid(e.target.checked)} />
-          Already paid for this cycle (don't log immediate payment)
+          <input type="checkbox" checked={alreadyPaid}  onChange={e => setAlreadyPaid(e.target.checked)} />
+          Don't log immediate payment
         </label>
       )}
 
