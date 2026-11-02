@@ -6,12 +6,10 @@ import { useAuth } from '../context/AuthContext';
 
 // auth form
 export default function AuthForm({ mode }: { mode: 'login' | 'register' }) {
-  // state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  // hooks
   const { login } = useAuth();
   const navigate = useNavigate();
 

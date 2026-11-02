@@ -1,9 +1,14 @@
+# workflow name
 name: CI
+# triggers
 on: [push, pull_request]
 
+# jobs
 jobs:
+  # backend job
   backend:
     runs-on: ubuntu-latest
+    # test database
     services:
       postgres:
         image: postgres:16
@@ -12,39 +17,57 @@ jobs:
           POSTGRES_PASSWORD: tracker
           POSTGRES_DB: tracker
         ports: ['5432:5432']
+        # health check
         options: >-
           --health-cmd pg_isready --health-interval 5s
           --health-timeout 5s --health-retries 10
+    # test env
     env:
       DATABASE_URL: postgres://tracker:tracker@localhost:5432/tracker
       JWT_SECRET: test-secret
+    # working dir
     defaults:
       run:
         working-directory: backend
+    # steps
     steps:
+      # checkout
       - uses: actions/checkout@v7
+      # setup node
       - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: backend/package-lock.json
+      # init database
       - run: PGPASSWORD=tracker psql -h localhost -U tracker -d tracker -f ../db/init.sql
+      # install
       - run: npm ci
+      # build
       - run: npm run build
+      # run tests
       - run: npm test
 
+  # frontend job
   frontend:
     runs-on: ubuntu-latest
+    # working dir
     defaults:
       run:
         working-directory: frontend
+    # steps
     steps:
+      # checkout
       - uses: actions/checkout@v7
+      # setup node
       - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: frontend/package-lock.json
+      # install
       - run: npm ci
+      # run tests
       - run: npm test
+      # build
       - run: npm run build

@@ -1,4 +1,6 @@
+# services
 services:
+  # database
   db:
     image: postgres:16
     environment:
@@ -6,21 +8,26 @@ services:
       POSTGRES_PASSWORD: tracker
       POSTGRES_DB: tracker
     ports: ['5432:5432']
+    # init schema
     volumes:
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
 
 
+  # api
   backend:
     build: ./backend
     environment:
       DATABASE_URL: postgres://tracker:tracker@db:5432/tracker
       JWT_SECRET: change-me-in-production
+    # wait for db
     depends_on: [db]
     ports: ['3000:3000']
 
+  # web app
   frontend:
     build:
       context: ./frontend
+      # build arg
       args:
         VITE_API_URL: http://localhost:3000
     ports: ['5173:80']
