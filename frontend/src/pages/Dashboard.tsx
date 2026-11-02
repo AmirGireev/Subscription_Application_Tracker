@@ -1,3 +1,4 @@
+// imports
 import { useCallback, useEffect, useState } from 'react';
 import { api } from '../api';
 import { useAuth } from '../context/AuthContext';
@@ -6,7 +7,9 @@ import { formatMoney } from '../utils/money';
 import SubscriptionForm from '../components/SubscriptionForm';
 import SubscriptionList from '../components/SubscriptionList';
 
+// stat card
 function StatCard({ label, value }: { label: string; value: string }) {
+  // render
   return (
     <div className='card'>
       <small>{label}</small>
@@ -15,7 +18,9 @@ function StatCard({ label, value }: { label: string; value: string }) {
   );
 }
 
+// dashboard
 export default function Dashboard() {
+  // state
   const { logout } = useAuth();
   const [subs, setSubs] = useState<Subscription[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
@@ -25,6 +30,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // load data
   const load = useCallback(async () => {
     try {
       const params = new URLSearchParams();
@@ -36,6 +42,7 @@ export default function Dashboard() {
         api<Stats>('/api/subscriptions/stats'),
       ]);
 
+      // due renewals
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
@@ -45,6 +52,7 @@ export default function Dashboard() {
         new Date(sub.next_billing_date + 'T00:00:00') <= today
       );
 
+      // auto renew
       if (dueRenewals.length > 0) {
         await Promise.all(dueRenewals.map(sub => {
           const nextDate = new Date(sub.next_billing_date + 'T00:00:00');
@@ -83,11 +91,12 @@ export default function Dashboard() {
     }
   }, [statusFilter, categoryFilter]);
 
+  // initial load
   useEffect(() => {
     load();
   }, [load]);
 
-  // HIER IST DIE ANPASSUNG FÜR DEN HAKEN
+  // save
   async function save(data: SubscriptionInput, alreadyPaid: boolean = true) {
     if (editing) {
       await api(`/api/subscriptions/${editing.id}`, { method: 'PUT', body: JSON.stringify(data) });
@@ -105,7 +114,6 @@ export default function Dashboard() {
       const newData = {
         ...data,
         next_billing_date: nextDate.toISOString().split('T')[0],
-        // Wenn alreadyPaid true ist (Standard), schreibe keine Notiz rein. Sonst berechne die Kosten sofort.
         notes: alreadyPaid ? '' : `Paid ${costStr} on ${todayStr}`
       };
 
@@ -114,6 +122,7 @@ export default function Dashboard() {
     await load();
   }
 
+  // run action
   async function run(action: () => Promise<unknown>) {
     try {
       await action();
@@ -123,6 +132,7 @@ export default function Dashboard() {
     }
   }
 
+  // cancel
   const cancelSub = (s: Subscription) =>
     run(() =>
       api(`/api/subscriptions/${s.id}`, {
@@ -131,11 +141,13 @@ export default function Dashboard() {
       })
     );
 
+  // delete
   const removeSub = (id: number) => {
     if (!confirm('Delete this subscription?')) return;
     run(() => api(`/api/subscriptions/${id}`, { method: 'DELETE' }));
   };
 
+  // reactivate
   const reactivateSub = (s: Subscription) => {
     const nextDate = new Date();
     nextDate.setDate(nextDate.getDate() + 30);
@@ -151,12 +163,14 @@ export default function Dashboard() {
     );
   };
 
+  // total paid
   const totalPaidCents = subs.reduce((sum, sub) => {
     if (!sub.notes) return sum;
     const paymentCount = (sub.notes.match(/Paid/g) || []).length;
     return sum + (paymentCount * sub.cost_cents);
   }, 0);
 
+  // loading state
   if (loading) return <p className='container'>Loading…</p>;
 
   return (

@@ -1,13 +1,17 @@
+// imports
 import { useState, useEffect } from 'react';
 import type { Subscription, SubscriptionInput } from '../types';
 
+// props
 interface Props {
   initial: Subscription | null;
   onSave: (data: SubscriptionInput, alreadyPaid: boolean) => Promise<void>;
   onCancelEdit: () => void;
 }
 
+// subscription form
 export default function SubscriptionForm({ initial, onSave, onCancelEdit }: Props) {
+  // state
   const [name, setName] = useState('');
   const [cost, setCost] = useState('');
   const [cycle, setCycle] = useState<'monthly'|'yearly'>('monthly');
@@ -16,6 +20,7 @@ export default function SubscriptionForm({ initial, onSave, onCancelEdit }: Prop
   const [alreadyPaid, setAlreadyPaid] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // fill on edit
   useEffect(() => {
     if (initial) {
       setName(initial.name);
@@ -26,6 +31,7 @@ export default function SubscriptionForm({ initial, onSave, onCancelEdit }: Prop
     }
   }, [initial]);
 
+  // submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -48,6 +54,7 @@ export default function SubscriptionForm({ initial, onSave, onCancelEdit }: Prop
     }
   };
 
+  // render
   return (
     <form onSubmit={handleSubmit} className="sub-form">
       <div>

@@ -1,6 +1,8 @@
+// imports
 import type { Subscription } from '../types';
 import { formatMoney } from '../utils/money';
 
+// cancel links
 const CANCEL_LINKS: Record<string, string> = {
   netflix: 'https://www.netflix.com/cancelplan',
   spotify: 'https://www.spotify.com/account/cancel/',
@@ -19,6 +21,7 @@ const CANCEL_LINKS: Record<string, string> = {
   dropbox: 'https://www.dropbox.com/account/plan'
 };
 
+// props
 interface Props {
   subs: Subscription[];
   onEdit: (s: Subscription) => void;
@@ -27,9 +30,12 @@ interface Props {
   onReactivate: (s: Subscription) => void;
 }
 
+// subscription list
 export default function SubscriptionList({ subs, onEdit, onCancel, onDelete, onReactivate }: Props) {
+  // empty state
   if (subs.length === 0) return <p>No subscriptions found.</p>;
 
+  // render
   return (
     <ul className='list'>
       {subs.map((s) => (

@@ -1,16 +1,21 @@
+// imports
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api';
 import { useAuth } from '../context/AuthContext';
 
+// auth form
 export default function AuthForm({ mode }: { mode: 'login' | 'register' }) {
+  // state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  // hooks
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  // submit
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError('');
@@ -29,8 +34,10 @@ export default function AuthForm({ mode }: { mode: 'login' | 'register' }) {
     }
   }
 
+  // mode
   const isLogin = mode === 'login';
 
+  // render
   return (
     <form className='auth' onSubmit={handleSubmit}>
       <h1>{isLogin ? 'Log in' : 'Create account'}</h1>
