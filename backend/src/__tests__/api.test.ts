@@ -1,20 +1,25 @@
+// imports
 import 'dotenv/config';
 import request from 'supertest';
 import app from '../app';
 import { pool } from '../db';
 
+// cleanup
 afterAll(() => pool.end());
 
+// helper
 const register = async () => {
   const email = `t${Date.now()}${Math.random()}@example.com`;
   const res = await request(app).post('/api/auth/register').send({ email, password: 'password123' });
   return { Authorization: `Bearer ${res.body.token}` };
 };
 
+// no auth
 it('rejects unauthenticated access', async () => {
   await request(app).get('/api/subscriptions').expect(401);
 });
 
+// data isolation
 it('stops user B from touching user A data', async () => {
   const a = await register();
   const b = await register();
@@ -25,18 +30,21 @@ it('stops user B from touching user A data', async () => {
   expect(list.body).toHaveLength(0);
 });
 
+// wrong password
 it('wrong password returns 401', async () => {
   const email = `test${Date.now()}@example.com`;
   await request(app).post('/api/auth/register').send({ email, password: 'password123' });
   await request(app).post('/api/auth/login').send({ email, password: 'wrongpassword' }).expect(401);
 });
 
+// duplicate email
 it('duplicate email returns 409', async () => {
   const email = `test${Date.now()}@example.com`;
   await request(app).post('/api/auth/register').send({ email, password: 'password123' }).expect(201);
   await request(app).post('/api/auth/register').send({ email, password: 'password123' }).expect(409);
 });
 
+// create and list
 it('creates, then lists a subscription', async () => {
   const auth = await register();
   await request(app).post('/api/subscriptions').set(auth)
@@ -46,12 +54,14 @@ it('creates, then lists a subscription', async () => {
   expect(list.body[0].name).toBe('Spotify');
 });
 
+// invalid cost
 it('negative cost returns 400', async () => {
   const auth = await register();
   await request(app).post('/api/subscriptions').set(auth)
     .send({ name: 'Netflix', cost_cents: -100, billing_cycle: 'monthly' }).expect(400);
 });
 
+// cancelled stats
 it('cancelled subscriptions are excluded from /stats', async () => {
   const auth = await register();
   await request(app).post('/api/subscriptions').set(auth)
@@ -60,6 +70,7 @@ it('cancelled subscriptions are excluded from /stats', async () => {
   expect(stats.body.activeCount).toBe(0);
 });
 
+// filters
 it('category and status filters work', async () => {
   const auth = await register();
   await request(app).post('/api/subscriptions').set(auth)

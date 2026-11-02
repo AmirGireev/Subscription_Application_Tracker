@@ -1,10 +1,13 @@
+// imports
 import express from 'express';
 import cors from 'cors';
 import authRouter from './routes/auth';
 import subscriptionsRouter from './routes/subscriptions';
 import { errorHandler } from './middleware/error';
 
+// app
 const app = express();
+// allowed origins
 const allowedOrigins = [
   'https://subscription-tracker-r2u5.onrender.com',
   'http://localhost:5173',
@@ -12,9 +15,10 @@ const allowedOrigins = [
   'http://localhost:3000'
 ];
 
+// cors
 app.use(cors({
   origin: function (origin, callback) {
-    // Erlaube Anfragen ohne Origin (z.B. Server-to-Server, Postman oder Same-Origin auf Render)
+    // no origin
     if (!origin) return callback(null, true);
     
     if (allowedOrigins.indexOf(origin) === -1) {
@@ -24,10 +28,14 @@ app.use(cors({
   }
 }));
 
+// json parsing
 app.use(express.json());
+// health check
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
+// routes
 app.use('/api/auth', authRouter);
 app.use('/api/subscriptions', subscriptionsRouter);
+// error handler
 app.use(errorHandler);
 
 export default app;

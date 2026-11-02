@@ -1,18 +1,23 @@
+// imports
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { pool } from '../db';
 
+// router
 const router = Router();
+// validation schema
 const credentials = z.object({
   email: z.string().email(),
   password: z.string().min(8),
 });
 
+// sign token
 const sign = (userId: number) =>
   jwt.sign({ userId }, process.env.JWT_SECRET!, { expiresIn: '7d' });
 
+// register
 router.post('/register', async (req, res, next) => {
   try {
     const { email, password } = credentials.parse(req.body);
@@ -27,6 +32,7 @@ router.post('/register', async (req, res, next) => {
   }
 });
 
+// login
 router.post('/login', async (req, res, next) => {
   try {
     const { email, password } = credentials.parse(req.body);
@@ -45,4 +51,5 @@ router.post('/login', async (req, res, next) => {
   }
 });
 
+// export
 export default router;

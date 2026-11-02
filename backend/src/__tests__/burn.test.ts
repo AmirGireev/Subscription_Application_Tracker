@@ -1,10 +1,13 @@
+// imports
 import { monthlyCost, calcStats } from '../lib/burn';
 
+// monthly cost
 it('normalizes yearly to monthly', () => {
   expect(monthlyCost(1200, 'yearly')).toBe(100);
   expect(monthlyCost(999, 'monthly')).toBe(999);
 });
 
+// burn stats
 it('sums burn and lists renewals in the next 30 days', () => {
   const today = new Date('2026-01-01');
   const stats = calcStats([

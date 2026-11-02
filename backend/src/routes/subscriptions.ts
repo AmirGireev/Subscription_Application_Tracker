@@ -1,12 +1,15 @@
+// imports
 import { Router } from 'express';
 import { z } from 'zod';
 import { pool } from '../db';
 import { requireAuth, AuthRequest } from '../middleware/auth';
 import { calcStats } from '../lib/burn';
 
+// router setup
 const router = Router();
 router.use(requireAuth);
 
+// validation schema
 const schema = z.object({
   name: z.string().min(1),
   cost_cents: z.number().int().min(0),
@@ -17,10 +20,11 @@ const schema = z.object({
   notes: z.string().nullable().optional(),
 });
 
-// ::text stops pg from turning the date into a JS Date (timezone shifts)
+// columns
 const COLS = `id, name, cost_cents, billing_cycle, category, status,
   next_billing_date::text AS next_billing_date, notes`;
 
+// stats
 router.get('/stats', async (req: AuthRequest, res, next) => {
   try {
     const { rows } = await pool.query(
@@ -31,14 +35,17 @@ router.get('/stats', async (req: AuthRequest, res, next) => {
   } catch (err) { next(err); }
 });
 
+// list
 router.get('/', async (req: AuthRequest, res, next) => {
   try {
     const params: unknown[] = [req.userId];
     let sql = `SELECT ${COLS} FROM subscriptions WHERE user_id = $1`;
+    // status filter
     if (typeof req.query.status === 'string') {
       params.push(req.query.status);
       sql += ` AND status = $${params.length}`;
     }
+    // category filter
     if (typeof req.query.category === 'string') {
       params.push(req.query.category);
       sql += ` AND category = $${params.length}`;
@@ -49,6 +56,7 @@ router.get('/', async (req: AuthRequest, res, next) => {
   } catch (err) { next(err); }
 });
 
+// create
 router.post('/', async (req: AuthRequest, res, next) => {
   try {
     const d = schema.parse(req.body);
@@ -63,6 +71,7 @@ router.post('/', async (req: AuthRequest, res, next) => {
   } catch (err) { next(err); }
 });
 
+// update
 router.put('/:id', async (req: AuthRequest, res, next) => {
   try {
     const d = schema.parse(req.body);
@@ -78,6 +87,7 @@ router.put('/:id', async (req: AuthRequest, res, next) => {
   } catch (err) { next(err); }
 });
 
+// delete
 router.delete('/:id', async (req: AuthRequest, res, next) => {
   try {
     const { rowCount } = await pool.query(
@@ -89,4 +99,5 @@ router.delete('/:id', async (req: AuthRequest, res, next) => {
   } catch (err) { next(err); }
 });
 
+// export
 export default router;
