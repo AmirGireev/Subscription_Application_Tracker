@@ -41,7 +41,7 @@ export default function SubscriptionForm({ initial, onSave, onCancelEdit }: Prop
       }, alreadyPaid);
       
       if (!initial) {
-        setName(''); setCost(''); setNextDate(''); setCategory('other'); setAlreadyPaid(true);
+        setName(''); setCost(''); setNextDate(''); setCategory('other'); setAlreadyPaid(false);
       }
     } finally {
       setLoading(false);
