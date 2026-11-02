@@ -83,14 +83,21 @@ export default function SubscriptionForm({ initial, onSave, onCancelEdit }: Prop
         <option value="yearly">Yearly</option>
       </select>
       
-      <select value={category} onChange={e=>setCategory(e.target.value)}>
-        <option value="video">video</option>
-        <option value="music">music</option>
-        <option value="dev">dev</option>
-        <option value="productivity">productivity</option>
-        <option value="cloud">cloud</option>
-        <option value="other">other</option>
-      </select>
+      <input 
+        list="categories-list" 
+        placeholder="Category (e.g. video)" 
+        value={category} 
+        onChange={e=>setCategory(e.target.value)} 
+        required 
+      />
+      <datalist id="categories-list">
+        <option value="video" />
+        <option value="music" />
+        <option value="sport" />
+        <option value="tech" />
+        <option value="phone" />
+        <option value="other" />
+      </datalist>
       
       <input type="date" value={nextDate} onChange={e=>setNextDate(e.target.value)} />
       
