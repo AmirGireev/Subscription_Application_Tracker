@@ -5,7 +5,10 @@ import subscriptionsRouter from './routes/subscriptions';
 import { errorHandler } from './middleware/error';
 
 const app = express();
-app.use(cors({ origin: 'https://tracker-frontend-v08g.onrender.com/' }));
+app.use(cors({
+  origin: 'https://subscription-application-tracker.onrender.com',
+  credentials: true
+}));
 app.use(express.json());
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 app.use('/api/auth', authRouter);
