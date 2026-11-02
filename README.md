@@ -1,6 +1,6 @@
 # Subscription & Monthly Burn Tracker
 
-![CI](https://github.com/AmirGireev/subscription-tracker/actions/workflows/ci.yml/badge.svg)
+(https://github.com/AmirGireev/subscription-tracker/actions/workflows/ci.yml/badge.svg)
 
 Track your software subscriptions and see your monthly spending at a glance.
 
