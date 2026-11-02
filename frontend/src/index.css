@@ -1,0 +1,21 @@
+body { font-family: system-ui, sans-serif; margin: 0; background: #f6f7f9; color: #1f2430; }
+.container { max-width: 860px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+.topbar { display: flex; justify-content: space-between; align-items: center; }
+button { cursor: pointer; padding: 0.4rem 0.8rem; border-radius: 6px; border: 1px solid #c8ccd4; background: #fff; }
+button[type='submit'] { background: #2f5bea; color: #fff; border-color: #2f5bea; }
+input, select { padding: 0.4rem 0.6rem; border: 1px solid #c8ccd4; border-radius: 6px; }
+.error { color: #b42318; }
+.auth { max-width: 360px; margin: 4rem auto; display: flex; flex-direction: column; gap: 0.8rem; }
+.auth label { display: flex; flex-direction: column; gap: 0.25rem; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; }
+.card { background: #fff; padding: 1rem; border-radius: 10px; display: flex; flex-direction: column; gap: 0.3rem; }
+.card strong { font-size: 1.5rem; }
+.bar-row { display: grid; grid-template-columns: 110px 1fr 90px; gap: 0.6rem; align-items: center; margin: 0.4rem 0; }
+.bar { background: #e4e7ec; border-radius: 6px; height: 12px; }
+.bar-fill { background: #2f5bea; height: 100%; border-radius: 6px; }
+.sub-form, .filters { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.list { list-style: none; padding: 0; }
+.list li { display: grid; grid-template-columns: 1fr auto auto; gap: 1rem; align-items: center; background: #fff; padding: 0.7rem 1rem; border-radius: 8px; margin-bottom: 0.5rem; }
+.list small { display: block; color: #667085; }
+.list li.cancelled { opacity: 0.55; }
+.actions { display: flex; gap: 0.4rem; }

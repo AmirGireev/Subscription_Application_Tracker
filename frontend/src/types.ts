@@ -1,5 +1,6 @@
 export type BillingCycle = 'monthly' | 'yearly';
 export type SubStatus = 'active' | 'cancelled';
+export type SubscriptionInput = Omit<Subscription, 'id'>;
 
 export interface Subscription {
   id: number;
@@ -19,3 +20,5 @@ export interface Stats {
   byCategory: Record<string, number>;
   upcoming: { name: string; cost_cents: number; next_billing_date: string }[];
 }
+
+export const CATEGORIES = ['video', 'music', 'dev', 'productivity', 'cloud', 'other'];
